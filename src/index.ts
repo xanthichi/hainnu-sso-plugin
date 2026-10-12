@@ -3,9 +3,9 @@ import type {AcademicPlugin, AuthState, ErrorCode, HostSdk, Result} from '../../
 const origin = 'https://zfjw.hainnu.edu.cn';
 const base = origin + '/jwglxt';
 const casHost = 'https://auth.hainnu.edu.cn:9443';
-const cas = casHost + '/cas/login';
-const service = base + '/xtgl/login_sso.html';
-const entry = cas + '?service=' + encodeURIComponent(service);
+const clientId = 'afc636ed721044c09a8380492f355164';
+const serviceCallback = origin + '/sso/hnsflogin';
+const entry = casHost + '/cas/oauth2.0/authorize?response_type=code&client_id=' + clientId + '&redirect_uri=' + encodeURIComponent(serviceCallback);
 const completion = base + '/xtgl/index_initMenu.html';
 const ok = <T>(data: T): Result<T> => ({ok: true, data});
 function fail(code: ErrorCode, message: string): never { throw Object.assign(new Error(message), {code}); }
@@ -65,7 +65,7 @@ export default {
       await s.state.remove('pending'); await s.state.set('account', username);
       const page = await s.http({url: entry, purpose: 'auth', charset: 'UTF-8'});
       if (page.status >= 500) fail('NETWORK_RETRYABLE', '海南师范大学统一认证暂时不可用，请稍后重试');
-      if (page.url.startsWith(base + '/')) return validate(s);
+      if (page.url.startsWith(origin + '/')) return validate(s);
       if (!onCas(page.url)) fail('PAGE_CHANGED', '海南师范大学统一认证入口发生变化');
       const form = s.html.form(page.body, 'form');
       if (!form.execution || !form._eventId) fail('PAGE_CHANGED', '海南师范大学统一认证表单发生变化');
@@ -80,7 +80,7 @@ export default {
         if (error || response.status === 401) fail('INVALID_CREDENTIALS', '海南师范大学统一认证未通过，请检查账号和密码');
         return web(s);
       }
-      if (!response.url.startsWith(base + '/')) fail('PAGE_CHANGED', '海南师范大学统一认证未完成教务跳转');
+      if (!response.url.startsWith(origin + '/')) fail('PAGE_CHANGED', '海南师范大学统一认证未完成教务跳转');
       return validate(s);
     },
     resume: async (args, _context, s) => {
