@@ -1,0 +1,321 @@
+[
+  {
+    "name": "CAS plain form login succeeds",
+    "operation": "auth.start",
+    "args": {
+      "username": "fixture-student",
+      "password": "synthetic-password"
+    },
+    "http": [
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+        "purpose": "auth",
+        "response": {
+          "status": 200,
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+          "headers": {},
+          "body": "<html><body><div class=\"login-page\"><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s1\" /><input type=\"hidden\" name=\"_eventId\" value=\"submit\" /><input type=\"hidden\" name=\"geolocation\" /><input id=\"username\" name=\"username\" value=\"\" /><input id=\"password\" name=\"password\" value=\"\" /></form></div></body></html>"
+        }
+      },
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+        "purpose": "auth",
+        "method": "POST",
+        "form": {
+          "username": "fixture-student",
+          "password": "synthetic-password",
+          "execution": "e1s1",
+          "_eventId": "submit",
+          "geolocation": ""
+        },
+        "response": {
+          "status": 200,
+          "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_initMenu.html",
+          "headers": {},
+          "body": "<html>Home</html>"
+        }
+      },
+      {
+        "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+        "purpose": "query",
+        "response": {
+          "status": 200,
+          "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+          "headers": {},
+          "body": "<h4 class=\"media-heading\">模拟同学 学生</h4><input id=\"sessionUserKey\" value=\"fixture-student\">"
+        }
+      }
+    ],
+    "expect": {
+      "ok": true,
+      "data": {
+        "status": "authenticated",
+        "studentId": "fixture-student",
+        "studentName": "模拟同学"
+      }
+    }
+  },
+  {
+    "name": "Existing CAS session still checks teaching identity",
+    "operation": "auth.start",
+    "args": {
+      "username": "fixture-student",
+      "password": "synthetic-password"
+    },
+    "http": [
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+        "purpose": "auth",
+        "response": {
+          "status": 200,
+          "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_initMenu.html",
+          "headers": {},
+          "body": "<html>Home</html>"
+        }
+      },
+      {
+        "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+        "purpose": "query",
+        "response": {
+          "status": 200,
+          "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+          "headers": {},
+          "body": "<h4 class=\"media-heading\">模拟同学 学生</h4><input id=\"sessionUserKey\" value=\"fixture-student\">"
+        }
+      }
+    ],
+    "expect": {
+      "ok": true,
+      "data": {
+        "status": "authenticated",
+        "studentId": "fixture-student",
+        "studentName": "模拟同学"
+      }
+    }
+  },
+  {
+    "name": "Validate profile succeeds",
+    "operation": "auth.validate",
+    "http": [
+      {
+        "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+        "purpose": "query",
+        "response": {
+          "status": 200,
+          "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+          "headers": {},
+          "body": "<h4 class=\"media-heading\">模拟同学 学生</h4><input id=\"sessionUserKey\" value=\"fixture-student\">"
+        }
+      }
+    ],
+    "expect": {
+      "ok": true,
+      "data": {
+        "status": "authenticated",
+        "studentId": "fixture-student",
+        "studentName": "模拟同学"
+      }
+    }
+  },
+  {
+    "name": "Validate falls back to menu identity",
+    "operation": "auth.validate",
+    "http": [
+      {
+        "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+        "purpose": "query",
+        "response": {
+          "status": 200,
+          "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+          "headers": {},
+          "body": "<div></div>"
+        }
+      },
+      {
+        "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_initMenu.html",
+        "purpose": "query",
+        "response": {
+          "status": 200,
+          "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_initMenu.html",
+          "headers": {},
+          "body": "<input id=\"sessionUserKey\" value=\"fixture-student\"><h4 class=\"media-heading\">模拟同学 学生</h4>"
+        }
+      }
+    ],
+    "expect": {
+      "ok": true,
+      "data": {
+        "status": "authenticated",
+        "studentId": "fixture-student",
+        "studentName": "模拟同学"
+      }
+    }
+  },
+  {
+    "name": "Reject a different signed-in account",
+    "operation": "auth.validate",
+    "http": [
+      {
+        "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+        "purpose": "query",
+        "response": {
+          "status": 200,
+          "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_cxYhxxIndex.html?gnmkdm=index",
+          "headers": {},
+          "body": "<h4 class=\"media-heading\">模拟同学 学生</h4><input id=\"sessionUserKey\" value=\"different-student\">"
+        }
+      }
+    ],
+    "expect": {
+      "ok": false,
+      "error": {
+        "code": "INVALID_CREDENTIALS",
+        "message": "网页登录账号与当前账号不一致，请使用当前账号登录"
+      }
+    }
+  },
+  {
+    "name": "Reject expired continuation auth.resume",
+    "operation": "auth.resume",
+    "args": {
+      "continuationId": "missing"
+    },
+    "expect": {
+      "ok": false,
+      "error": {
+        "code": "SESSION_EXPIRED",
+        "message": "海南师范大学登录验证已过期，请重新登录"
+      }
+    }
+  },
+  {
+    "name": "Reject expired continuation auth.refreshCaptcha",
+    "operation": "auth.refreshCaptcha",
+    "args": {
+      "continuationId": "missing"
+    },
+    "expect": {
+      "ok": false,
+      "error": {
+        "code": "SESSION_EXPIRED",
+        "message": "海南师范大学登录验证已过期，请重新登录"
+      }
+    }
+  },
+  {
+    "name": "Changed login form cannot post credentials",
+    "operation": "auth.start",
+    "args": {
+      "username": "fixture-student",
+      "password": "synthetic-password"
+    },
+    "http": [
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+        "purpose": "auth",
+        "response": {
+          "status": 200,
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+          "headers": {},
+          "body": "<html><body><form method=\"post\"></form></body></html>"
+        }
+      }
+    ],
+    "expect": {
+      "ok": false,
+      "error": {
+        "code": "PAGE_CHANGED",
+        "message": "海南师范大学统一认证表单发生变化"
+      }
+    }
+  },
+  {
+    "name": "Wrong credentials keep the account on the CAS page",
+    "operation": "auth.start",
+    "args": {
+      "username": "fixture-student",
+      "password": "synthetic-password"
+    },
+    "http": [
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+        "purpose": "auth",
+        "response": {
+          "status": 200,
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+          "headers": {},
+          "body": "<html><body><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s1\" /><input type=\"hidden\" name=\"_eventId\" value=\"submit\" /><input type=\"hidden\" name=\"geolocation\" /></form></body></html>"
+        }
+      },
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+        "purpose": "auth",
+        "method": "POST",
+        "form": {
+          "username": "fixture-student",
+          "password": "synthetic-password",
+          "execution": "e1s1",
+          "_eventId": "submit",
+          "geolocation": ""
+        },
+        "response": {
+          "status": 200,
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html&error",
+          "headers": {},
+          "body": "<html><body><div id=\"msg\" class=\"errors\">账号或密码错误。</div><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s2\" /></form></body></html>"
+        }
+      }
+    ],
+    "expect": {
+      "ok": false,
+      "error": {
+        "code": "INVALID_CREDENTIALS",
+        "message": "海南师范大学统一认证未通过，请检查账号和密码"
+      }
+    }
+  },
+  {
+    "name": "Missing teaching identity falls back to web login",
+    "operation": "auth.start",
+    "args": {
+      "username": "fixture-student",
+      "password": "synthetic-password"
+    },
+    "http": [
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+        "purpose": "auth",
+        "response": {
+          "status": 200,
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+          "headers": {},
+          "body": "<html><body><div class=\"login-page\"><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s1\" /><input type=\"hidden\" name=\"_eventId\" value=\"submit\" /><input type=\"hidden\" name=\"geolocation\" /></form></div></body></html>"
+        }
+      },
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+        "purpose": "auth",
+        "method": "POST",
+        "form": {
+          "username": "fixture-student",
+          "password": "synthetic-password",
+          "execution": "e1s1",
+          "_eventId": "submit",
+          "geolocation": ""
+        },
+        "response": {
+          "status": 200,
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fjwglxt%2Fxtgl%2Flogin_sso.html",
+          "headers": {},
+          "body": "<html><body><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s2\" /></form></body></html>"
+        }
+      }
+    ],
+    "expectSubset": {
+      "ok": true,
+      "data": {
+        "status": "webLogin"
+      }
+    }
+  }
+]
