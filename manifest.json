@@ -1,0 +1,17 @@
+{
+  "id": "cn.edu.hainnu.sso",
+  "name": "海南师范大学统一认证",
+  "version": "1.0.0",
+  "apiVersion": 3,
+  "kind": "extension",
+  "extends": "builtin.zf",
+  "entry": "index.js",
+  "description": "通过海南师范大学统一身份认证（CAS）登录正方教务，支持会话验证与网页登录续接；课表、成绩、考试和选课查询复用内置正方适配。",
+  "capabilities": ["auth.start", "auth.resume", "auth.refreshCaptcha", "auth.validate"],
+  "network": [
+    {"origin": "https://auth.hainnu.edu.cn:9443", "pathPrefix": "/cas", "methods": ["GET", "POST"], "purposes": ["auth"]},
+    {"origin": "https://zfjw.hainnu.edu.cn", "pathPrefix": "/jwglxt", "methods": ["GET"], "purposes": ["auth", "query"]}
+  ],
+  "school": {"id": "hainnu", "name": "海南师范大学", "domain": "zfjw.hainnu.edu.cn", "protocol": "https", "basePath": "/jwglxt", "academicSystem": "zf", "allowedAcademicHosts": ["auth.hainnu.edu.cn"]},
+  "files": {}
+}
