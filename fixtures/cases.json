@@ -1,6 +1,6 @@
 [
   {
-    "name": "OAuth authorize login succeeds",
+    "name": "CAS login then OAuth authorize succeeds",
     "operation": "auth.start",
     "args": {
       "username": "fixture-student",
@@ -8,17 +8,17 @@
     },
     "http": [
       {
-        "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login",
         "purpose": "auth",
         "response": {
           "status": 200,
-          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fauth.hainnu.edu.cn%3A9443%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dafc636ed721044c09a8380492f355164%26redirect_uri%3Dhttps%253A%252F%252Fzfjw.hainnu.edu.cn%252Fsso%252Fhnsflogin%26response_type%3Dcode%26client_name%3DCasOAuthClient",
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login",
           "headers": {},
           "body": "<html><body><div class=\"login-page\"><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s1\" /><input type=\"hidden\" name=\"_eventId\" value=\"submit\" /><input type=\"hidden\" name=\"geolocation\" /><input id=\"username\" name=\"username\" value=\"\" /><input id=\"password\" name=\"password\" value=\"\" /></form></div></body></html>"
         }
       },
       {
-        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fauth.hainnu.edu.cn%3A9443%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dafc636ed721044c09a8380492f355164%26redirect_uri%3Dhttps%253A%252F%252Fzfjw.hainnu.edu.cn%252Fsso%252Fhnsflogin%26response_type%3Dcode%26client_name%3DCasOAuthClient",
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login",
         "purpose": "auth",
         "method": "POST",
         "form": {
@@ -28,6 +28,24 @@
           "_eventId": "submit",
           "geolocation": ""
         },
+        "response": {
+          "status": 200,
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login",
+          "headers": {},
+          "body": "<html><body><div class=\"login-success\"></div></body></html>"
+        }
+      },
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
+        "purpose": "auth",
+        "error": {
+          "code": "UNTRUSTED_URL",
+          "message": "synthetic-oauth-init-stop"
+        }
+      },
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
+        "purpose": "auth",
         "response": {
           "status": 200,
           "url": "https://zfjw.hainnu.edu.cn/jwglxt/xtgl/index_initMenu.html",
@@ -56,13 +74,31 @@
     }
   },
   {
-    "name": "Existing OAuth session lands on teaching system",
+    "name": "Existing CAS session lands on teaching system",
     "operation": "auth.start",
     "args": {
       "username": "fixture-student",
       "password": "synthetic-password"
     },
     "http": [
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login",
+        "purpose": "auth",
+        "response": {
+          "status": 200,
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login",
+          "headers": {},
+          "body": "<html><body><div class=\"login-success\"></div></body></html>"
+        }
+      },
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
+        "purpose": "auth",
+        "error": {
+          "code": "UNTRUSTED_URL",
+          "message": "synthetic-oauth-init-stop"
+        }
+      },
       {
         "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
         "purpose": "auth",
@@ -211,11 +247,11 @@
     },
     "http": [
       {
-        "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login",
         "purpose": "auth",
         "response": {
           "status": 200,
-          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fauth.hainnu.edu.cn%3A9443%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dafc636ed721044c09a8380492f355164%26redirect_uri%3Dhttps%253A%252F%252Fzfjw.hainnu.edu.cn%252Fsso%252Fhnsflogin%26response_type%3Dcode%26client_name%3DCasOAuthClient",
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login",
           "headers": {},
           "body": "<html><body><form method=\"post\"></form></body></html>"
         }
@@ -238,17 +274,17 @@
     },
     "http": [
       {
-        "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login",
         "purpose": "auth",
         "response": {
           "status": 200,
-          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fauth.hainnu.edu.cn%3A9443%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dafc636ed721044c09a8380492f355164%26redirect_uri%3Dhttps%253A%252F%252Fzfjw.hainnu.edu.cn%252Fsso%252Fhnsflogin%26response_type%3Dcode%26client_name%3DCasOAuthClient",
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login",
           "headers": {},
           "body": "<html><body><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s1\" /><input type=\"hidden\" name=\"_eventId\" value=\"submit\" /><input type=\"hidden\" name=\"geolocation\" /></form></body></html>"
         }
       },
       {
-        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fauth.hainnu.edu.cn%3A9443%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dafc636ed721044c09a8380492f355164%26redirect_uri%3Dhttps%253A%252F%252Fzfjw.hainnu.edu.cn%252Fsso%252Fhnsflogin%26response_type%3Dcode%26client_name%3DCasOAuthClient",
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login",
         "purpose": "auth",
         "method": "POST",
         "form": {
@@ -260,7 +296,7 @@
         },
         "response": {
           "status": 200,
-          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fauth.hainnu.edu.cn%3A9443%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dafc636ed721044c09a8380492f355164%26redirect_uri%3Dhttps%253A%252F%252Fzfjw.hainnu.edu.cn%252Fsso%252Fhnsflogin%26response_type%3Dcode%26client_name%3DCasOAuthClient&error",
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login&error",
           "headers": {},
           "body": "<html><body><div id=\"msg\" class=\"errors\">账号或密码错误。</div><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s2\" /></form></body></html>"
         }
@@ -283,17 +319,17 @@
     },
     "http": [
       {
-        "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login",
         "purpose": "auth",
         "response": {
           "status": 200,
-          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fauth.hainnu.edu.cn%3A9443%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dafc636ed721044c09a8380492f355164%26redirect_uri%3Dhttps%253A%252F%252Fzfjw.hainnu.edu.cn%252Fsso%252Fhnsflogin%26response_type%3Dcode%26client_name%3DCasOAuthClient",
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login",
           "headers": {},
           "body": "<html><body><div class=\"login-page\"><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s1\" /><input type=\"hidden\" name=\"_eventId\" value=\"submit\" /><input type=\"hidden\" name=\"geolocation\" /></form></div></body></html>"
         }
       },
       {
-        "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fauth.hainnu.edu.cn%3A9443%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dafc636ed721044c09a8380492f355164%26redirect_uri%3Dhttps%253A%252F%252Fzfjw.hainnu.edu.cn%252Fsso%252Fhnsflogin%26response_type%3Dcode%26client_name%3DCasOAuthClient",
+        "url": "https://auth.hainnu.edu.cn:9443/cas/login",
         "purpose": "auth",
         "method": "POST",
         "form": {
@@ -305,9 +341,28 @@
         },
         "response": {
           "status": 200,
-          "url": "https://auth.hainnu.edu.cn:9443/cas/login?service=https%3A%2F%2Fauth.hainnu.edu.cn%3A9443%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3Dafc636ed721044c09a8380492f355164%26redirect_uri%3Dhttps%253A%252F%252Fzfjw.hainnu.edu.cn%252Fsso%252Fhnsflogin%26response_type%3Dcode%26client_name%3DCasOAuthClient",
+          "url": "https://auth.hainnu.edu.cn:9443/cas/login",
           "headers": {},
-          "body": "<html><body><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e1s2\" /></form></body></html>"
+          "body": "<html><body><div class=\"login-success\"></div></body></html>"
+        }
+      }
+      ,
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
+        "purpose": "auth",
+        "error": {
+          "code": "UNTRUSTED_URL",
+          "message": "synthetic-oauth-init-stop"
+        }
+      },
+      {
+        "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/authorize?response_type=code&client_id=afc636ed721044c09a8380492f355164&redirect_uri=https%3A%2F%2Fzfjw.hainnu.edu.cn%2Fsso%2Fhnsflogin",
+        "purpose": "auth",
+        "response": {
+          "status": 200,
+          "url": "https://auth.hainnu.edu.cn:9443/cas/oauth2.0/callbackAuthorize",
+          "headers": {},
+          "body": "<html><body><div class=\"login-page\"><form method=\"post\"><input type=\"hidden\" name=\"execution\" value=\"e2s1\" /></form></div></body></html>"
         }
       }
     ],

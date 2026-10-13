@@ -5,7 +5,9 @@ const base = origin + '/jwglxt';
 const casHost = 'https://auth.hainnu.edu.cn:9443';
 const clientId = 'afc636ed721044c09a8380492f355164';
 const serviceCallback = origin + '/sso/hnsflogin';
+const casLogin = casHost + '/cas/login';
 const entry = casHost + '/cas/oauth2.0/authorize?response_type=code&client_id=' + clientId + '&redirect_uri=' + encodeURIComponent(serviceCallback);
+const oauthInitScope = {loginUrl: casHost + '/cas', serviceUrl: casHost + '/cas/oauth2.0/callbackAuthorize'};
 const completion = base + '/xtgl/index_initMenu.html';
 const ok = <T>(data: T): Result<T> => ({ok: true, data});
 function fail(code: ErrorCode, message: string): never { throw Object.assign(new Error(message), {code}); }
@@ -63,24 +65,44 @@ export default {
       const username = args.username.trim();
       if (!username || !args.password) fail('INVALID_CREDENTIALS', '请输入海南师范大学统一认证账号和密码');
       await s.state.remove('pending'); await s.state.set('account', username);
-      const page = await s.http({url: entry, purpose: 'auth', charset: 'UTF-8'});
+      // Logging in with the OAuth service would make the same request follow
+      // callbackAuthorize, the teaching callback and its initial redirects. Split
+      // CAS authentication from OAuth authorization to stay within the host limit.
+      const page = await s.http({url: casLogin, purpose: 'auth', charset: 'UTF-8', sameOriginReferer: true});
       if (page.status >= 500) fail('NETWORK_RETRYABLE', '海南师范大学统一认证暂时不可用，请稍后重试');
       if (page.url.startsWith(origin + '/')) return validate(s);
       if (!onCas(page.url)) fail('PAGE_CHANGED', '海南师范大学统一认证入口发生变化');
-      const form = s.html.form(page.body, 'form');
-      if (!form.execution || !form._eventId) fail('PAGE_CHANGED', '海南师范大学统一认证表单发生变化');
-      if (s.html.select(page.body, 'input[name=captcha],input[name=rand],input[name=code]').length) return web(s);
-      // No password, encryption payload or CAS ticket is retained in plugin state.
-      const response = await s.http({url: page.url, method: 'POST', purpose: 'auth', charset: 'UTF-8',
-        form: {username, password: args.password, execution: form.execution, _eventId: form._eventId, geolocation: ''}});
-      if (response.status >= 500) fail('NETWORK_RETRYABLE', '海南师范大学统一认证暂时不可用，请稍后重试');
-      if (onCas(response.url)) {
-        const error = s.html.select(response.body, '#errormsg,#msg,.errors').map(n => n.text).join('').trim();
-        if (/验证码|二次|动态码|扫码/.test(error)) return web(s);
-        if (error || response.status === 401) fail('INVALID_CREDENTIALS', '海南师范大学统一认证未通过，请检查账号和密码');
-        return web(s);
+      const pageForms = s.html.select(page.body, 'form');
+      const form = pageForms.length ? s.html.form(pageForms[0].html, 'form') : {};
+      if (form.execution && form._eventId) {
+        if (s.html.select(page.body, 'input[name=captcha],input[name=rand],input[name=code]').length) return web(s);
+        // No password, encryption payload or CAS ticket is retained in plugin state.
+        const response = await s.http({url: page.url, method: 'POST', purpose: 'auth', charset: 'UTF-8', sameOriginReferer: true,
+          form: {username, password: args.password, execution: form.execution, _eventId: form._eventId, geolocation: ''}});
+        if (response.status >= 500) fail('NETWORK_RETRYABLE', '海南师范大学统一认证暂时不可用，请稍后重试');
+        if (!onCas(response.url)) fail('PAGE_CHANGED', '海南师范大学统一认证返回了其他站点');
+        const failedForm = s.html.form(response.body, 'form');
+        if (response.status === 401 || failedForm.execution) {
+          const error = s.html.select(response.body, '#errormsg,#msg,.errors').map(n => n.text).join('').trim();
+          if (/验证码|二次|动态码|扫码/.test(error)) return web(s);
+          fail('INVALID_CREDENTIALS', '海南师范大学统一认证未通过，请检查账号和密码');
+        }
+      } else if (pageForms.length) {
+        fail('PAGE_CHANGED', '海南师范大学统一认证表单发生变化');
       }
-      if (!response.url.startsWith(origin + '/')) fail('PAGE_CHANGED', '海南师范大学统一认证未完成教务跳转');
+      // Stop the first authorize at the teaching callback. A second authorize then
+      // goes directly there and finishes within the host redirect limit.
+      let oauth;
+      try {
+        oauth = await s.http({url: entry, purpose: 'auth', charset: 'UTF-8', sameOriginReferer: true,
+          authScope: oauthInitScope});
+      } catch (error) {
+        if ((error as {code?: string}).code !== 'UNTRUSTED_URL') throw error;
+      }
+      oauth = await s.http({url: entry, purpose: 'auth', charset: 'UTF-8', sameOriginReferer: true});
+      if (oauth.status >= 500) fail('NETWORK_RETRYABLE', '海南师范大学统一认证暂时不可用，请稍后重试');
+      if (onCas(oauth.url)) return web(s);
+      if (!oauth.url.startsWith(origin + '/')) fail('PAGE_CHANGED', '海南师范大学统一认证未完成教务跳转');
       return validate(s);
     },
     resume: async (args, _context, s) => {

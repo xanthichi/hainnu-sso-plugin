@@ -6,9 +6,9 @@
 
 ## 登录流程
 
-1. GET CAS OAuth2.0 authorize 端点（client_id 指向教务回调 `/sso/hnsflogin`），未登录时 302 到 CAS 登录页，读取本次 `execution`。
-2. POST 用户名、密码与 `execution`、`_eventId=submit`、`geolocation` 到登录页。
-3. CAS 经 callbackAuthorize 发放授权 code，跳转 `zfjw.hainnu.edu.cn/sso/hnsflogin?code=…` 建立教务会话。
+1. GET CAS 登录页，读取 `execution`。
+2. POST 用户名、密码与 `execution`、`_eventId=submit`、`geolocation` 完成统一认证；这一步不携带 OAuth service，避免登录后立即跟随过长的授权回调链。
+3. 第一次 GET CAS OAuth2.0 authorize 用 `authScope` 固定到 CAS `callbackAuthorize` 票据交换；在教务回调前停下。第二次 authorize 会直接进入教务回调并完成教务会话。
 4. 访问 `/jwglxt/xtgl/index_cxYhxxIndex.html` 校验学号与姓名，必要时回退到主菜单页读取。
 
 ## 安装
